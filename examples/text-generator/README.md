@@ -1,10 +1,14 @@
-# Self-host OpenAI's GPT-2 as a service
+# Deploy OpenAI's GPT-2 as an API on AWS
 
-This example shows how to deploy OpenAI's GPT-2 model as a service on AWS.
+This example shows how to deploy OpenAI's GPT-2 model as a service on AWS. To train your own GPT-2 with any text you'd like, run [this notebook in Google Colab.](https://colab.research.google.com/drive/1OoutHRGSk95c5QG1Ji5EbmOJ4Kjw7J06#scrollTo=kc5cIgeEmv8o)
+
+GPT-2 is OpenAI's state of the art unsupervised language model capable of generating coherent paragraphs of text—so coherent, in fact, that OpenAI didn't initially release their full trained model for fear of it being used nefariously. With over 1.5 billion paramters, GPT-2 is designed to predict the next word in a string of words, based on the preceding text. As an example of how powerful it is, read [this example](https://openai.com/blog/better-language-models/#sample2).
+
+To deploy GPT-2 as an api, you first need to export a trained model, which you can do [here](https://colab.research.google.com/drive/1OoutHRGSk95c5QG1Ji5EbmOJ4Kjw7J06#scrollTo=kc5cIgeEmv8o). Once you have a model, you can deploy with Cortex by following the below steps:
 
 ## Define a deployment
 
-A `deployment` specifies a set of resources that are deployed as a single unit. An `api` makes a model available as a web service that can serve real-time predictions. This configuration will download the 124M GPT-2 model from the `cortex-examples` S3 bucket, preprocess the payload and postprocess the inference with functions defined in `handler.py` and deploy each replica of the API on 1 GPU.
+A `deployment` specifies a set of resources that are deployed as a single unit. An `api` makes a model available as a web service that can serve real-time predictions. This configuration will download the GPT-2 model from your S3 bucket, preprocess the payload and postprocess the inference with functions defined in `handler.py`, and deploy each replica of the API on 1 GPU.
 
 ```yaml
 - kind: deployment
@@ -12,7 +16,7 @@ A `deployment` specifies a set of resources that are deployed as a single unit. 
 
 - kind: api
   name: generator
-  model: s3://cortex-examples/text-generator/gpt-2/124M
+  model: s3://your-bucket/your-model
   request_handler: handler.py
   compute:
     cpu: 1
@@ -20,7 +24,7 @@ A `deployment` specifies a set of resources that are deployed as a single unit. 
 ```
 
 <!-- CORTEX_VERSION_MINOR -->
-You can run the code that generated the exported GPT-2 model [here](https://colab.research.google.com/github/cortexlabs/cortex/blob/master/examples/text-generator/gpt-2.ipynb).
+You can run the code to generate a pretrained GPT-2 model [here](https://colab.research.google.com/github/cortexlabs/cortex/blob/master/examples/text-generator/gpt-2.ipynb). You can also train your own GPT-2 model with any text you'd like with [this notebook here.](https://colab.research.google.com/drive/1OoutHRGSk95c5QG1Ji5EbmOJ4Kjw7J06#scrollTo=lOgT-s9pucCB)
 
 ## Add request handling
 
@@ -74,8 +78,6 @@ url: http://***.amazonaws.com/text/generator
 $ curl http://***.amazonaws.com/text/generator \
     -X POST -H "Content-Type: application/json" \
     -d '{"text": "machine learning"}'
-
-Machine learning, with more than one thousand researchers around the world today, are looking to create computer-driven machine learning algorithms that can also be applied to human and social problems, such as education, health care, employment, medicine, politics, or the environment...
 ```
 
 Any questions? [chat with us](https://gitter.im/cortexlabs/cortex).
